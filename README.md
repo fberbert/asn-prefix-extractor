@@ -35,7 +35,7 @@ pip install selenium webdriver-manager
    cd asn-prefix-extractor
    ```
 
-2. Edit the script to set the provider ASN you wish to analyze. The default provider ASN is `28260`.
+2. Edit the script to set the provider ASN you wish to analyze. 
 
 3. Run the script:
 
