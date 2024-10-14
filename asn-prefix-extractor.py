@@ -13,7 +13,6 @@
 #
 
 import time
-import csv
 from selenium import webdriver
 from selenium.webdriver.chrome.service import Service
 from selenium.webdriver.common.by import By
@@ -23,8 +22,8 @@ from selenium.webdriver.chrome.options import Options
 # Output CSV file
 output_file = 'output.txt'
 
-# Provider ASN to analyze
-provider_asn = '28260'
+# Provider ASN to analyze, e.g.: 12345
+provider_asn = 'xxxxx'
 
 # Configure Chrome in headless mode
 chrome_options = Options()
