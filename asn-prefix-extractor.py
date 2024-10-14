@@ -19,11 +19,12 @@ from selenium.webdriver.common.by import By
 from webdriver_manager.chrome import ChromeDriverManager
 from selenium.webdriver.chrome.options import Options
 
-# Output CSV file
+# Output TXT file
 output_file = 'output.txt'
 
 # Provider ASN to analyze, e.g.: 12345
-provider_asn = 'xxxxx'
+# provider_asn = 'xxxxx'
+provider_asn = '28260'
 
 # Configure Chrome in headless mode
 chrome_options = Options()
@@ -32,12 +33,12 @@ chrome_options.add_argument("--headless")  # Headless mode
 # Initialize the driver with ChromeDriverManager
 driver = webdriver.Chrome(service=Service(ChromeDriverManager().install()), options=chrome_options)
 
-# Data to be written to the CSV
+# Data to be written to the file
 output_data = {}
 
 # Open the initial page
 url = f'https://radar.qrator.net/as/{provider_asn}/connectivity/neighbors/customers?page-size=100&p=1'
-driver.get(url)
+# driver.get(url)
 
 # Wait for the page to load
 time.sleep(10)
@@ -50,6 +51,10 @@ asn_list = [asn.text.replace("AS", "").strip() for asn in asn_elements]
 
 # Iterate over the client ASNs
 for client_asn in asn_list:
+    # check if client_asn contains at least 4 digits
+    if len(str(client_asn)) < 4:
+        continue
+
     print(f'🔹 Processing client ASN {client_asn}...')
     
     # Build the URL for each client's providers
@@ -69,10 +74,10 @@ for client_asn in asn_list:
             active_icon_html = active_icon.get_attribute("outerHTML")
 
             # Check if the active_icon contains "CheckCircleIcon"
-            # CheckCircleIcon is the class name for the green checkmark icon
             if active_icon_html and "CheckCircleIcon" in active_icon_html:
                 provider_as_number = row.find_element(By.XPATH, './/td[1]/a').text.strip().replace("AS", "")
                 provider_name = row.find_element(By.XPATH, './/td[2]').text.strip()
+
                 active_providers.append(provider_as_number)
                 active_names.append(provider_name)
 
@@ -87,6 +92,9 @@ for client_asn in asn_list:
             print(f'\tFetching prefixes from: {prefixes_url}')
             driver.get(prefixes_url)
             time.sleep(10)
+
+            # Get the client name
+            client_name = driver.find_element(By.XPATH, '//p[contains(@class, "MuiTypography-root MuiTypography-body1 fs-16 fw-500 lh-20 css-1n8uc25")]').text.strip('()')
 
             rows = driver.find_elements(By.XPATH, '//tbody/tr')
 
@@ -107,7 +115,7 @@ for client_asn in asn_list:
             if prefixes:
                 output_data[client_asn] = {
                     'asn_number': client_asn,
-                    'asn_name': as_name,
+                    'asn_name': client_name,
                     'customer_url': customer_url,
                     'prefixes': prefixes
                 }
@@ -121,7 +129,7 @@ for client_asn in asn_list:
     except Exception as e:
         print(f"\t❌ Error processing ASN {client_asn}: {e}\n")
 
-# Write the data to the CSV file
+# Write the data to the TXT file
 with open(output_file, mode='w', encoding='utf-8') as file:
     for client_asn, data in output_data.items():
         file.write(f"ASN Name: {data['asn_name']}\n")
@@ -130,7 +138,6 @@ with open(output_file, mode='w', encoding='utf-8') as file:
         for prefix in data['prefixes']:
             file.write(f"{prefix}\n")
         file.write("\n")
-
 
 # Close the browser
 driver.quit()
