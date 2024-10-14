@@ -1,27 +1,23 @@
 # ASN Prefix Extractor
 
-This script extracts data from [Qrator Radar](https://radar.qrator.net/) for a specified provider ASN, listing all customer ASNs that have the provider as their only active upstream provider and have at least one active IPv4 prefix. The extracted data is saved in a CSV file.
+This script extracts customer ASNs that have a specific provider ASN from the [Radar Qrator](https://radar.qrator.net) website. The goal is to find customers that have only the specified provider as their active provider and at least one active IPv4 prefix.
 
 ## Features
 
-- **Extracts customer ASNs** that are connected to a specific provider ASN.
-- **Filters customers** who have only the specified provider as their active upstream.
-- **Retrieves active IPv4 prefixes** of customers and stores them in the output file.
-- Output data includes:
-  - ASN Number
-  - ASN Name
-  - Customer URL
-  - List of active IPv4 prefixes
+- Scrapes data from the Radar Qrator website to find customer ASNs of a given provider ASN.
+- Checks if each customer ASN has only one active provider and that it matches the specified provider ASN.
+- Extracts the active IPv4 prefixes for each qualifying customer ASN.
+- Stores the results in a text file, organized by ASN number, ASN name, and the corresponding IPv4 prefixes.
 
-## Prerequisites
+## Requirements
 
 - Python 3.x
 - Selenium
-- ChromeDriver (managed by `webdriver-manager`)
+- WebDriver Manager
 
-### Install dependencies
+## Installation
 
-You can install the required dependencies using:
+Install the required dependencies with:
 
 ```bash
 pip install selenium webdriver-manager
@@ -29,62 +25,38 @@ pip install selenium webdriver-manager
 
 ## Usage
 
-1. Clone the repository:
-   ```bash
-   git clone https://github.com/your-username/asn-prefix-extractor.git
-   cd asn-prefix-extractor
-   ```
+1. **Edit the Script:**
+   - Set the `provider_asn` variable in the script to the ASN of the provider whose customers you want to analyze.
+   - Optionally, change the `output_file` variable if you want to output the results to a different file.
 
-2. Edit the script to set the provider ASN you wish to analyze. 
+2. **Run the Script:**
 
-3. Run the script:
+   After setting the required variables, you can run the script:
 
    ```bash
-   python3 asn-prefix-extractor.py
+   python asn_prefix_extractor.py
    ```
 
-4. The output will be saved in the specified CSV file (`output.csv` by default), containing the following columns:
-   - ASN Number
-   - ASN Name
-   - Customer URL
-   - List of IPv4 prefixes (if available)
+3. **Output:**
 
-## Configuration
+   The script generates a text file (by default `output.txt`) containing the ASN name, ASN number, and the list of active IPv4 prefixes for each customer that meets the criteria.
 
-The following variables can be set at the beginning of the script:
-- `output_file`: The name of the CSV file where the results will be stored.
-- `provider_asn`: The ASN of the provider you want to analyze (default is set to `28260`).
+   Example output:
+   ```
+   ASN Name: Example ASN
+   ASN Number: 12345
+   IPv4 Prefixes:
+   192.168.0.0/24
+   203.0.113.0/24
+   ```
 
-## Example Output
+## Code Overview
 
-```csv
-ASN Number,ASN Name,Customer URL,IPv4 Prefixes
-12345,Example AS,https://radar.qrator.net/as/12345/connectivity/neighbors/providers,"192.0.2.0/24, 198.51.100.0/24"
-...
-```
-
-## Headless Mode
-
-By default, the script runs in headless mode, meaning it does not open a visible browser window. If you want to disable headless mode for debugging purposes, you can remove the following line in the script:
-
-```python
-chrome_options.add_argument("--headless")
-```
-
-## Troubleshooting
-
-### Slow Loading Pages
-
-If you encounter issues where pages take too long to load, try increasing the `time.sleep(10)` delay between requests. You may also want to monitor the page loading process manually by disabling headless mode.
-
-### No Data in Output File
-
-Ensure that the provider ASN has active customers and that Qrator Radar is up and running. If no customer ASNs meet the filter criteria, the output file may be empty.
+- **provider_asn**: The ASN of the provider whose customers are to be analyzed.
+- **output_file**: The name of the output file (default: `output.txt`).
+- The script navigates to the Radar Qrator website, retrieves a list of customer ASNs for the given provider, and for each customer, checks if they have only one active provider (the specified provider ASN). If they meet this criterion, the script fetches their active IPv4 prefixes.
+- Only customers with at least one active IPv4 prefix are added to the output file.
 
 ## License
 
-This project is licensed under the MIT License. See the [LICENSE](LICENSE) file for details.
-
-## Contributions
-
-Feel free to submit pull requests or open issues to improve the script.
+This project is licensed under the Apache License 2.0. See the [LICENSE](LICENSE) file for details.
